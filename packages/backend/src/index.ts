@@ -25,6 +25,10 @@ const app = Fastify({ logger: true });
 
 await app.register(cors);
 
+app.addContentTypeParser('*', { parseAs: 'buffer' }, (_req, body, done) => {
+  done(null, body);
+});
+
 const db = getDb();
 migrate(db);
 initLogTable(db);

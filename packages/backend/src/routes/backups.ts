@@ -9,7 +9,7 @@ export async function backupRoutes(app: FastifyInstance) {
     return listBackups();
   });
 
-  app.post('/api/backups', async () => {
+  app.post('/api/backups', { config: { rawBody: false } }, async () => {
     const result = createBackup();
     return result;
   });
