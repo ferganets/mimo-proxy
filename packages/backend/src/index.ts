@@ -11,6 +11,7 @@ import { protocolRoutes } from './routes/protocols.js';
 import { protocolConfigRoutes } from './routes/protocol-config.js';
 import { logRoutes } from './routes/logs.js';
 import { backupRoutes } from './routes/backups.js';
+import { subscriptionRoutes } from './routes/subscription.js';
 import { initLogTable, log } from './services/log.service.js';
 import { registerAdapter } from './services/config-engine.js';
 import { XrayAdapter } from './adapters/xray.adapter.js';
@@ -48,6 +49,7 @@ await app.register(protocolRoutes);
 await app.register(protocolConfigRoutes);
 await app.register(logRoutes);
 await app.register(backupRoutes);
+await app.register(subscriptionRoutes);
 
 app.get('/api/health', async () => ({ status: 'ok' }));
 

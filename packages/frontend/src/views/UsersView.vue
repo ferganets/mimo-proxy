@@ -9,6 +9,8 @@ const showModal = ref(false);
 const showQRModal = ref(false);
 const qrImage = ref('');
 const qrLinks = ref<Record<string, string>>({});
+const subUrl = ref('');
+const subQr = ref('');
 const copied = ref(false);
 const editing = ref<any>(null);
 const form = ref({ username: '', password: '', quota_bytes: 0, expires_at: '', protocols: [] as string[] });
@@ -74,11 +76,21 @@ async function remove(id: number) {
 }
 
 async function openQR(id: number) {
-  const res = await api.users.qr(id);
-  qrImage.value = res.qr;
-  qrLinks.value = res.links;
+  const [qrRes, subRes] = await Promise.all([
+    api.users.qr(id),
+    api.users.subLink(id),
+  ]);
+  qrImage.value = qrRes.qr;
+  qrLinks.value = qrRes.links;
+  subUrl.value = subRes.subUrl;
+  subQr.value = await generateQR(subRes.subUrl);
   copied.value = false;
   showQRModal.value = true;
+}
+
+async function generateQR(text: string): Promise<string> {
+  const { default: QRCode } = await import('qrcode');
+  return QRCode.toDataURL(text);
 }
 
 async function copyLink(link: string) {
@@ -194,21 +206,37 @@ onMounted(load);
     </div>
 
     <div v-if="showQRModal" class="modal-overlay" @click.self="showQRModal = false">
-      <div class="modal qr-modal" style="max-width:520px;">
+      <div class="modal qr-modal" style="max-width:560px;">
         <h3>Подключение</h3>
-        <img :src="qrImage" alt="QR Code" style="max-width:220px;margin:1rem auto;display:block;" />
-        <div style="text-align:left;margin-top:1.25rem;">
-          <div v-for="(link, proto) in qrLinks" :key="proto" style="margin-bottom:0.75rem;">
-            <label style="font-size:0.75rem;font-weight:600;color:#64748b;text-transform:uppercase;">{{ proto }}</label>
-            <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
-              <input :value="link" readonly style="flex:1;padding:0.5rem 0.75rem;border:1px solid var(--border-color);border-radius:0.5rem;font-size:0.8rem;font-family:monospace;background:#f8fafc;" />
-              <button class="btn btn-outline btn-sm" @click="copyLink(link)" style="flex-shrink:0;">
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:1.5rem;margin-top:1rem;text-align:left;">
+          <div>
+            <label style="font-size:0.75rem;font-weight:600;color:#64748b;text-transform:uppercase;">Прямые ссылки</label>
+            <div v-for="(link, proto) in qrLinks" :key="proto" style="margin-top:0.5rem;">
+              <label style="font-size:0.7rem;font-weight:600;color:#94a3b8;text-transform:uppercase;">{{ proto }}</label>
+              <div style="display:flex;gap:0.5rem;margin-top:0.25rem;">
+                <input :value="link" readonly style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--border-color);border-radius:0.4rem;font-size:0.75rem;font-family:monospace;background:#f8fafc;" />
+                <button class="btn btn-outline btn-sm" @click="copyLink(link)" style="flex-shrink:0;padding:0.35rem 0.6rem;">
+                  <i :class="copied ? 'pi pi-check' : 'pi pi-copy'"></i>
+                </button>
+              </div>
+            </div>
+          </div>
+
+          <div>
+            <label style="font-size:0.75rem;font-weight:600;color:#64748b;text-transform:uppercase;">Подписка (все протоколы)</label>
+            <img v-if="subQr" :src="subQr" alt="Subscription QR" style="width:140px;margin:0.5rem auto;display:block;" />
+            <div style="display:flex;gap:0.5rem;margin-top:0.5rem;">
+              <input :value="subUrl" readonly style="flex:1;padding:0.4rem 0.6rem;border:1px solid var(--border-color);border-radius:0.4rem;font-size:0.7rem;font-family:monospace;background:#f8fafc;" />
+              <button class="btn btn-outline btn-sm" @click="copyLink(subUrl)" style="flex-shrink:0;padding:0.35rem 0.6rem;">
                 <i :class="copied ? 'pi pi-check' : 'pi pi-copy'"></i>
               </button>
             </div>
+            <p style="font-size:0.65rem;color:#94a3b8;margin-top:0.375rem;">Вставьте в клиент как URL подписки</p>
           </div>
         </div>
-        <div class="modal-actions" style="justify-content:center;margin-top:1rem;">
+
+        <div class="modal-actions" style="justify-content:center;margin-top:1.25rem;">
           <button class="btn btn-outline btn-sm" @click="showQRModal = false">Закрыть</button>
         </div>
       </div>

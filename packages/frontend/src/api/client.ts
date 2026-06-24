@@ -45,6 +45,7 @@ export const api = {
     update: (id: number, data: any) => request<any>(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: number) => request<any>(`/users/${id}`, { method: 'DELETE' }),
     qr: (id: number) => request<{ qr: string; links: Record<string, string>; primary: string }>(`/users/${id}/qr`),
+    subLink: (id: number) => request<{ subUrl: string; subToken: string }>(`/users/${id}/sub`),
   },
   stats: {
     system: () => request<{ users: number; online: number; totalTraffic: number; uptime: number }>('/stats/system'),

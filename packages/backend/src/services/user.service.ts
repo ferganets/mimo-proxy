@@ -1,5 +1,6 @@
 import { getDb } from '../db/index.js';
 import { hashPassword } from './auth.service.js';
+import { randomBytes } from 'node:crypto';
 
 export interface CreateUserInput {
   username: string;
@@ -25,16 +26,18 @@ export function listUsers() {
 export async function createUser(input: CreateUserInput) {
   const db = getDb();
   const passwordHash = await hashPassword(input.password);
+  const subToken = randomBytes(16).toString('hex');
   const result = db.prepare(
-    'INSERT INTO users (username, password_hash, quota_bytes, expires_at, protocols) VALUES (?, ?, ?, ?, ?)'
+    'INSERT INTO users (username, password_hash, sub_token, quota_bytes, expires_at, protocols) VALUES (?, ?, ?, ?, ?, ?)'
   ).run(
     input.username,
     passwordHash,
+    subToken,
     input.quota_bytes || 0,
     input.expires_at || null,
     JSON.stringify(input.protocols || [])
   );
-  return Number(result.lastInsertRowid);
+  return { id: Number(result.lastInsertRowid), subToken };
 }
 
 export function updateUser(id: number, input: UpdateUserInput) {

@@ -6,6 +6,7 @@ export function migrate(db: Database.Database): void {
       id INTEGER PRIMARY KEY AUTOINCREMENT,
       username TEXT UNIQUE NOT NULL,
       password_hash TEXT NOT NULL,
+      sub_token TEXT UNIQUE,
       quota_bytes INTEGER NOT NULL DEFAULT 0,
       used_bytes INTEGER NOT NULL DEFAULT 0,
       expires_at TEXT,

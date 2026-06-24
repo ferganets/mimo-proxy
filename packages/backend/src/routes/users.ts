@@ -22,8 +22,8 @@ export async function userRoutes(app: FastifyInstance) {
     if (!body.username || !body.password) {
       return reply.code(400).send({ error: 'Username and password required' });
     }
-    const id = await userService.createUser(body);
-    return { id };
+    const { id, subToken } = await userService.createUser(body);
+    return { id, subToken };
   });
 
   app.put('/api/users/:id', async (req: FastifyRequest, reply: FastifyReply) => {
@@ -74,5 +74,17 @@ export async function userRoutes(app: FastifyInstance) {
     const primary = Object.values(links)[0] || `${user.username}@localhost`;
     const qr = await QRCode.default.toDataURL(primary);
     return { qr, links, primary };
+  });
+
+  app.get('/api/users/:id/sub', async (req: FastifyRequest, reply: FastifyReply) => {
+    const { id } = req.params as { id: string };
+    const db = (await import('../db/index.js')).getDb();
+    const user = db.prepare('SELECT id, username, sub_token FROM users WHERE id = ?').get(parseInt(id)) as any;
+    if (!user) return reply.code(404).send({ error: 'User not found' });
+
+    const host = req.headers.host || 'localhost';
+    const protocol = host.includes('localhost') ? 'http' : 'https';
+    const subUrl = `${protocol}://${host}/api/sub/${user.sub_token}`;
+    return { subUrl, subToken: user.sub_token };
   });
 }
