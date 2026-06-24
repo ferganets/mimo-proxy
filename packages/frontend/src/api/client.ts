@@ -44,7 +44,7 @@ export const api = {
     create: (data: any) => request<{ id: number }>('/users', { method: 'POST', body: JSON.stringify(data) }),
     update: (id: number, data: any) => request<any>(`/users/${id}`, { method: 'PUT', body: JSON.stringify(data) }),
     delete: (id: number) => request<any>(`/users/${id}`, { method: 'DELETE' }),
-    qr: (id: number) => request<{ qr: string }>(`/users/${id}/qr`),
+    qr: (id: number) => request<{ qr: string; links: Record<string, string>; primary: string }>(`/users/${id}/qr`),
   },
   stats: {
     system: () => request<{ users: number; online: number; totalTraffic: number; uptime: number }>('/stats/system'),

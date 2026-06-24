@@ -50,9 +50,29 @@ export async function userRoutes(app: FastifyInstance) {
     if (!user) return reply.code(404).send({ error: 'User not found' });
 
     const QRCode = await import('qrcode');
-    const config = JSON.parse(user.protocols || '[]');
-    const qrData = JSON.stringify({ username: user.username, protocols: config });
-    const qr = await QRCode.default.toDataURL(qrData);
-    return { qr };
+    const protocols = JSON.parse(user.protocols || '[]');
+    const links: Record<string, string> = {};
+
+    for (const proto of protocols) {
+      const host = req.headers.host || 'localhost';
+      const domain = host.split(':')[0];
+      switch (proto) {
+        case 'xray':
+          links[proto] = `vless://${user.id}-${user.username}@${domain}:443?encryption=none&security=tls&type=ws#MimoProxy-${user.username}`;
+          break;
+        case 'hysteria2':
+          links[proto] = `hysteria2://${user.id}-${user.username}@${domain}:8443?sni=${domain}#MimoProxy-${user.username}`;
+          break;
+        case 'mieru':
+          links[proto] = `mieru://${user.id}-${user.username}@${domain}:7701#MimoProxy-${user.username}`;
+          break;
+        default:
+          links[proto] = `${proto}://${user.id}-${user.username}@${domain}#MimoProxy-${user.username}`;
+      }
+    }
+
+    const primary = Object.values(links)[0] || `${user.username}@localhost`;
+    const qr = await QRCode.default.toDataURL(primary);
+    return { qr, links, primary };
   });
 }
