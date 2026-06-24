@@ -22,7 +22,7 @@ export async function subscriptionRoutes(app: FastifyInstance) {
           links.push(`vless://${user.id}-${user.username}@${domain}:443?encryption=none&security=tls&type=ws#MimoProxy-${user.username}-${proto}`);
           break;
         case 'hysteria2':
-          links.push(`hysteria2://${user.id}-${user.username}@${domain}:8443?sni=${domain}#MimoProxy-${user.username}-${proto}`);
+          links.push(`hysteria2://${user.id}-${user.username}@${domain}:8444?sni=${domain}#MimoProxy-${user.username}-${proto}`);
           break;
         case 'mieru':
           links.push(`mieru://${user.id}-${user.username}@${domain}:7701#MimoProxy-${user.username}-${proto}`);

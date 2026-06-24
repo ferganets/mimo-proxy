@@ -61,7 +61,7 @@ export async function userRoutes(app: FastifyInstance) {
           links[proto] = `vless://${user.id}-${user.username}@${domain}:443?encryption=none&security=tls&type=ws#MimoProxy-${user.username}`;
           break;
         case 'hysteria2':
-          links[proto] = `hysteria2://${user.id}-${user.username}@${domain}:8443?sni=${domain}#MimoProxy-${user.username}`;
+          links[proto] = `hysteria2://${user.id}-${user.username}@${domain}:8444?sni=${domain}#MimoProxy-${user.username}`;
           break;
         case 'mieru':
           links[proto] = `mieru://${user.id}-${user.username}@${domain}:7701#MimoProxy-${user.username}`;

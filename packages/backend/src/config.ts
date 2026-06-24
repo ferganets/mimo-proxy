@@ -13,7 +13,7 @@ export const config = {
     configPath: '/usr/local/etc/xray/config.json',
   },
   hysteria2: {
-    port: parseInt(process.env.HY2_PORT || '8443', 10),
+    port: parseInt(process.env.HY2_PORT || '8444', 10),
     password: process.env.HY2_PASSWORD || '',
     configPath: '/etc/hysteria/config.yaml',
   },
@@ -23,6 +23,6 @@ export const config = {
     configPath: '/etc/mita/config.json',
   },
   trusttunnel: {
-    port: parseInt(process.env.TRUST_PORT || '443', 10),
+    port: parseInt(process.env.TRUST_PORT || '4433', 10),
   },
 } as const;
