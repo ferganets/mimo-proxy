@@ -1,0 +1,13 @@
+services:
+  panel:
+    build: .
+    ports:
+      - "8443:8443"
+    volumes:
+      - ./data:/app/data
+    environment:
+      - JWT_SECRET=change-me-in-production
+      - DB_PATH=/app/data/panel.db
+      - TG_BOT_TOKEN=
+      - CERTBOT_EMAIL=
+    restart: unless-stopped
